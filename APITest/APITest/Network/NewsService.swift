@@ -8,6 +8,10 @@
 import Foundation
 import Combine
 
+//MARK: - Constants
+let maxStories = 10
+
+//MARK: - NewsServiceError
 enum NewsServiceError: LocalizedError {
     case addressUnreachable(URL)
     case invalidResponse
@@ -23,6 +27,7 @@ extension NewsServiceError: CustomStringConvertible {
     }
 }
 
+//MARK: - NewsServiceEndPoint
 enum NewsServiceEndPoint {
     static let baseURL = PrivateAPIs.baseURL
     case stories
@@ -38,13 +43,14 @@ enum NewsServiceEndPoint {
     }
 }
 
+//MARK: - NewsService
 struct NewsService {
     private static let decoder = JSONDecoder()
     
     static func story(id: Int) -> AnyPublisher<Story,NewsServiceError> {
         return URLSession.shared
             .dataTaskPublisher(for: NewsServiceEndPoint.story(id).url)
-            .print()
+            //.print()
             .subscribe(on: DispatchQueue.global(qos: .background))
             .map(\.data)
             .decode(type: Story.self, decoder: decoder)
@@ -54,6 +60,19 @@ struct NewsService {
             
         //mapError의 Error를 통한 .finish가 가능하다. .catch를 통해서 잡아줄 수도 있다.
         //ex) .mapError 대신 .catch { _ in Empty<Story,Error>() }
-            
     }
+    
+    static func stories(ids storyIDs: [Int]) -> AnyPublisher<Story, NewsServiceError> {
+        let storyIDs = Array(storyIDs.prefix(maxStories))
+        precondition(!storyIDs.isEmpty)
+        let initPublisher = story(id: storyIDs[0])
+        let remainder = Array(storyIDs.dropFirst())
+        return remainder
+            .reduce(initPublisher) { combined, id in
+                return combined
+                    .merge(with: story(id: id))
+                    .eraseToAnyPublisher()
+        }
+    }
+    
 }
