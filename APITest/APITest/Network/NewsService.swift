@@ -62,7 +62,7 @@ struct NewsService {
         //ex) .mapError 대신 .catch { _ in Empty<Story,Error>() }
     }
     
-    static func stories(ids storyIDs: [Int]) -> AnyPublisher<Story, NewsServiceError> {
+    static func mergedStories(ids storyIDs: [Int]) -> AnyPublisher<Story, NewsServiceError> {
         let storyIDs = Array(storyIDs.prefix(maxStories))
         precondition(!storyIDs.isEmpty)
         let initPublisher = story(id: storyIDs[0])
@@ -75,4 +75,32 @@ struct NewsService {
         }
     }
     
+    static func stories() -> AnyPublisher<[Story], NewsServiceError> {
+        return URLSession.shared
+            .dataTaskPublisher(for: NewsServiceEndPoint.stories.url)
+            .subscribe(on: DispatchQueue.global(qos:.background))
+            .map(\.data)
+            .decode(type: [Int].self, decoder: decoder)
+            .mapError { error -> NewsServiceError in
+                return storiesErrorHandle(with: error)
+            }.filter { !$0.isEmpty}
+            .flatMap { storyIDs in
+                return self.mergedStories(ids: storyIDs)
+            }.scan([]) { stories, story -> [Story] in
+                return stories + [story]
+            }.map { $0.sorted() }
+            .eraseToAnyPublisher()
+    }
+}
+
+//MARK: - NewsService error handling
+extension NewsService {
+    static func storiesErrorHandle(with error: Error) -> NewsServiceError {
+        switch error {
+        case is URLError:
+            return NewsServiceError.addressUnreachable(NewsServiceEndPoint.stories.url)
+        default:
+            return NewsServiceError.invalidResponse
+        }
+    }
 }

@@ -28,6 +28,8 @@ extension ViewController {
         fetchNewsStory(with: 1000)
         print("----- Line break -----")
         fetchAndMergeNewsStory(with: [1000, 1001, 1002])
+        print("----- Line break -----")
+        fetchNewsStories()
     }
 }
 
@@ -48,12 +50,23 @@ extension ViewController {
     
     func fetchAndMergeNewsStory(with storyIDs: [Int]) {
         print("DEBUG: MergedNewsStory")
-        NewsService.stories(ids: storyIDs)
+        NewsService.mergedStories(ids: storyIDs)
+            .receive(on: RunLoop.main)
             .sink { [unowned self] state in
                 render(state)
             } receiveValue: { story in
                 print(story)
             } .store(in: &subscriptions)
+    }
+    
+    func fetchNewsStories() {
+        NewsService.stories()
+            .receive(on: RunLoop.main)
+            .sink { [unowned self] state in
+                render(state)
+            } receiveValue: { story in
+                print(story)
+            }.store(in: &subscriptions)
     }
     
 }
