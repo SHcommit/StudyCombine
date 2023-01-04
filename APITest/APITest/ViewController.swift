@@ -27,6 +27,7 @@ class ViewController: UIViewController {
 extension ViewController {
     func fetchNewsStory(with id: Int)  {
         NewsService.story(id: id)
+            .receive(on: RunLoop.main)
             .sink { state in
                 switch state {
                 case .failure(let error):

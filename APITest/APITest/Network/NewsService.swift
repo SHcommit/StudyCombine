@@ -46,7 +46,6 @@ struct NewsService {
             .dataTaskPublisher(for: NewsServiceEndPoint.story(id).url)
             .print()
             .subscribe(on: DispatchQueue.global(qos: .background))
-            .receive(on: RunLoop.main)
             .map(\.data)
             .decode(type: Story.self, decoder: decoder)
             .mapError { error -> NewsServiceError in
