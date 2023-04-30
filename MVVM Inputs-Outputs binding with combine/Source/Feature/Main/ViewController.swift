@@ -46,11 +46,9 @@ class ViewController: UIViewController {
   
   // MARK: - Event handler
   @objc func didTapShowDate() {
-    animate(button: showDateButton)
     showDate.send(Date())
   }
   @objc func didTapHideDate() {
-    animate(button: hideDateButton)
     hideDate.send()
   }
   
@@ -77,9 +75,13 @@ extension ViewController: ViewControllerBindCase {
     case .none:
       print("뷰야 화면에 로드 됬니? :)")
     case .showTime(let currentTime):
-      dateView.text = currentTime
+      animate(
+        button: showDateButton,
+        logic: self.dateView.text = currentTime)
     case .hideTime(let labelData):
-      dateView.text = labelData
+      animate(
+        button: hideDateButton,
+        logic: self.dateView.text = labelData)
     }
   }
   
@@ -95,10 +97,14 @@ extension ViewController {
     hideDateButton.setTitle("hideDate", for: .normal)
   }
   
-  func animate(button: UIButton) {
+  func animate(
+    button: UIButton,
+    logic: @escaping @autoclosure ()->Void
+  ) {
     UIView.animate(withDuration: 0.2, animations: {
       button.transform = CGAffineTransform(scaleX: 0.9, y: 0.9)
     }) { _ in
+      logic()
       UIView.animate(withDuration: 0.2, animations: {
         button.transform = CGAffineTransform.identity
       })
