@@ -8,5 +8,5 @@
 import Foundation
 
 struct Model {
-  let labelData: String
+  var labelData: String
 }

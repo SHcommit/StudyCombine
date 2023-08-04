@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  TimeViewController.swift
 //  MVVM Inputs-Outputs binding with combine
 //
 //  Created by 양승현 on 2023/04/27.
@@ -8,38 +8,34 @@
 import UIKit
 import Combine
 
-protocol ViewControllerBindCase {
-  associatedtype State
-  func bind()
-  func render(_ state: State)
-}
-
-class ViewController: UIViewController {
-  
+class ClockViewController: UIViewController {
   // MARK: - Properties
-  let viewLoad = PassthroughSubject<Void,Never>()
-  let showDate = PassthroughSubject<Date,Never>()
-  let hideDate = PassthroughSubject<Void,Never>()
+  private let viewLoad = PassthroughSubject<Void,Never>()
+  private let showDate = PassthroughSubject<Date,Never>()
+  private let hideDate = PassthroughSubject<Void,Never>()
   
-  lazy var dateView: UILabel = { return setDateView() }()
-  lazy var showDateButton: UIButton = { return setButtonLayout(with: "", true) }()
-  lazy var hideDateButton: UIButton = { return setButtonLayout(with: "", false) }()
-  var viewModel: ViewModel
-  var subscriptions = Set<AnyCancellable>()
+  private var dateView: UILabel!
+  private var showDateButton: UIButton!
+  private var hideDateButton: UIButton!
+  
+  private var viewModel: any ClockViewModelable & ClockViewModelDataSource
+  
+  private var subscriptions = Set<AnyCancellable>()
   
   // MARK: - Lifecycle
-  init(viewModel: ViewModel) {
+  init(viewModel: some  ClockViewModelable & ClockViewModelDataSource) {
     self.viewModel = viewModel
     super.init(nibName: nil, bundle: nil)
   }
+  
   required init?(coder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
-    // Do any additional setup after loading the view.
     view.backgroundColor = .white
-    awakeLazySubviews()
+    configureUI()
     bind()
     viewLoad.send()
   }
@@ -48,6 +44,7 @@ class ViewController: UIViewController {
   @objc func didTapShowDate() {
     showDate.send(Date())
   }
+  
   @objc func didTapHideDate() {
     hideDate.send()
   }
@@ -55,11 +52,12 @@ class ViewController: UIViewController {
 }
 
 // MARK: - ViewControllerBindCase
-extension ViewController: ViewControllerBindCase {
-  typealias State = ViewControllerState
+extension ClockViewController: ViewBindable {
+  typealias OutputError = Error
+  typealias State = ClockViewControllerState
   
   func bind() {
-    let input = ViewControllerInput(
+    let input = ClockViewControllerInput(
       viewDidLoad: viewLoad.eraseToAnyPublisher(),
       showDate: showDate.eraseToAnyPublisher(),
       hideDate: hideDate.eraseToAnyPublisher())
@@ -74,6 +72,9 @@ extension ViewController: ViewControllerBindCase {
     switch state {
     case .none:
       print("뷰야 화면에 로드 됬니? :)")
+      print("DEBUG: 아맞다,, 서버에서 데이터를 요청해서 받기까지 화면의 상태는 none")
+      print("DEBUG: 서버에서 데이터를 받았다면, model의 특정 함수는 completionHandler호출!")
+      print("DEBUG: 이에 대한 로직 처리 후 뷰한테 ViewModel이 뷰의 특정한 state로 업데이트하도록 notify!!")
     case .showTime(let currentTime):
       animate(
         button: showDateButton,
@@ -84,20 +85,20 @@ extension ViewController: ViewControllerBindCase {
         logic: self.dateView.text = labelData)
     }
   }
-  
 }
 
 // MARK: - Helpers
-extension ViewController {
-  
-  //요곤 일단 블로그 글을 위해.. UIComponent들 lazy로 해서 함수로 묶었습니다.
-  func awakeLazySubviews() {
-    dateView.isHidden = false
-    showDateButton.setTitle("showDate", for: .normal)
-    hideDateButton.setTitle("hideDate", for: .normal)
+extension ClockViewController {
+  func configureUI() {
+    dateView = setDateView()
+    showDateButton = setButtonLayout(with: "showDate", true)
+    hideDateButton = setButtonLayout(with: "hideDate", false)
   }
-  
-  func animate(
+}
+
+// MARK: - Private helpers
+extension ClockViewController {
+  private func animate(
     button: UIButton,
     logic: @escaping @autoclosure ()->Void
   ) {
@@ -111,10 +112,11 @@ extension ViewController {
     }
   }
   
-  func setDateView() -> UILabel {
+  private func setDateView() -> UILabel {
     let v = UILabel()
     v.font = UIFont.systemFont(ofSize: 20)
     v.text = "Outputs UI Rendered"
+    v.isHidden = false
     v.textAlignment = .center
     v.translatesAutoresizingMaskIntoConstraints = false
     v.backgroundColor = .systemPink.withAlphaComponent(0.8)
@@ -130,7 +132,7 @@ extension ViewController {
     return v
   }
   
-  func setButtonLayout(with title: String, _ isShowButton: Bool) -> UIButton {
+  private func setButtonLayout(with title: String, _ isShowButton: Bool) -> UIButton {
     let b = UIButton()
     b.setTitle(title, for: .normal)
     b.backgroundColor = .brown.withAlphaComponent(0.8)
@@ -141,22 +143,19 @@ extension ViewController {
     b.layer.shadowOpacity = 0.3
     b.layer.shadowRadius = 3
     view.addSubview(b)
+    var constants: [NSLayoutConstraint] = [
+      b.topAnchor.constraint(equalTo: dateView.bottomAnchor, constant: 100),
+      b.widthAnchor.constraint(equalToConstant: 120),
+      b.heightAnchor.constraint(equalToConstant: 60)
+    ]
     if isShowButton {
-      NSLayoutConstraint.activate([
-        b.topAnchor.constraint(equalTo: dateView.bottomAnchor, constant: 100),
-        b.leadingAnchor.constraint(equalTo: dateView.leadingAnchor),
-        b.widthAnchor.constraint(equalToConstant: 120),
-        b.heightAnchor.constraint(equalToConstant: 60)])
+      constants.append(b.leadingAnchor.constraint(equalTo: dateView.leadingAnchor))
       b.addTarget(self, action: #selector(didTapShowDate), for: .touchUpInside)
     }else {
-      NSLayoutConstraint.activate([
-        b.topAnchor.constraint(equalTo: dateView.bottomAnchor, constant: 100),
-        b.trailingAnchor.constraint(equalTo: dateView.trailingAnchor),
-        b.widthAnchor.constraint(equalToConstant: 120),
-        b.heightAnchor.constraint(equalToConstant: 60)])
+      constants.append(b.trailingAnchor.constraint(equalTo: dateView.trailingAnchor))
       b.addTarget(self, action: #selector(didTapHideDate), for: .touchUpInside)
     }
+    NSLayoutConstraint.activate(constants)
     return b
   }
-  
 }

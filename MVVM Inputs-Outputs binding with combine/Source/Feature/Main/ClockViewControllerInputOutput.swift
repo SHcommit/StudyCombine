@@ -8,16 +8,6 @@
 import Foundation
 import Combine
 
-protocol ViewModelAssociatedType {
-  associatedtype Input
-  associatedtype Output
-  associatedtype State
-}
-
-protocol ViewModelCase: ViewModelAssociatedType {
-  func transform(_ input: Input) -> Output
-}
-
 /**
  TODO : ViewController에서 발생되는 user  interaction event, view lifecycle를 publisher 인스턴스로 정의
  
@@ -25,11 +15,11 @@ protocol ViewModelCase: ViewModelAssociatedType {
  - Param showDate : showDate 버튼 클릭. 이때 버튼 클릭 당시의 Date인스턴스 필요
  - Param hideDate : hideDate 버튼 클릭. 단순 이벤트 발생했다는 신호 전달.
  
- # Notes: #
+  Notes:
  1. 이 인스턴스 각각은 publisher입니다. ViewControllerInput 구조체 생성하기 위해선 3개의 publihser가 있어야 합니다.
  
  */
-struct ViewControllerInput {
+struct ClockViewControllerInput {
   let viewDidLoad: AnyPublisher<Void,Never>
   let showDate: AnyPublisher<Date,Never>
   let hideDate: AnyPublisher<Void,Never>
@@ -42,7 +32,7 @@ struct ViewControllerInput {
  - Case showTime : label 상태를 String으로 변경
  - Case hideTime : label 상태를 원래 label 데이터로 변경
  */
-enum ViewControllerState {
+enum ClockViewControllerState {
   case none
   case showTime(String)
   case hideTime(String)
