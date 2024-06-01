@@ -54,10 +54,10 @@ class ClockViewController: UIViewController {
 // MARK: - ViewControllerBindCase
 extension ClockViewController: ViewBindable {
   typealias OutputError = Error
-  typealias State = ClockViewControllerState
+  typealias State = ClockViewModelState
   
   func bind() {
-    let input = ClockViewControllerInput(
+    let input = ClockViewModelInput(
       viewDidLoad: viewLoad.eraseToAnyPublisher(),
       showDate: showDate.eraseToAnyPublisher(),
       hideDate: hideDate.eraseToAnyPublisher())

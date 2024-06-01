@@ -8,6 +8,6 @@
 import Combine
 
 protocol ClockViewModelable: ViewModelable
-where Input == ClockViewControllerInput,
-      State == ClockViewControllerState,
+where Input == ClockViewModelInput,
+      State == ClockViewModelState,
       Output == AnyPublisher<State, Never> { }

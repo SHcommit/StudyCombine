@@ -19,7 +19,7 @@ import Combine
  1. 이 인스턴스 각각은 publisher입니다. ViewControllerInput 구조체 생성하기 위해선 3개의 publihser가 있어야 합니다.
  
  */
-struct ClockViewControllerInput {
+struct ClockViewModelInput {
   let viewDidLoad: AnyPublisher<Void,Never>
   let showDate: AnyPublisher<Date,Never>
   let hideDate: AnyPublisher<Void,Never>
@@ -32,7 +32,7 @@ struct ClockViewControllerInput {
  - Case showTime : label 상태를 String으로 변경
  - Case hideTime : label 상태를 원래 label 데이터로 변경
  */
-enum ClockViewControllerState {
+enum ClockViewModelState {
   case none
   case showTime(String)
   case hideTime(String)
