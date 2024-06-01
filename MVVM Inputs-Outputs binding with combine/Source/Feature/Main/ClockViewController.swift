@@ -23,7 +23,7 @@ class ClockViewController: UIViewController {
   private var subscriptions = Set<AnyCancellable>()
   
   // MARK: - Lifecycle
-  init(viewModel: some  ClockViewModelable & ClockViewModelDataSource) {
+  init(viewModel: some ClockViewModelable & ClockViewModelDataSource) {
     self.viewModel = viewModel
     super.init(nibName: nil, bundle: nil)
   }
@@ -48,7 +48,6 @@ class ClockViewController: UIViewController {
   @objc func didTapHideDate() {
     hideDate.send()
   }
-  
 }
 
 // MARK: - ViewControllerBindCase
@@ -57,13 +56,20 @@ extension ClockViewController: ViewBindable {
   typealias State = ClockViewModelState
   
   func bind() {
+    
+    /// 퍼블리셔는
     let input = ClockViewModelInput(
       viewDidLoad: viewLoad.eraseToAnyPublisher(),
       showDate: showDate.eraseToAnyPublisher(),
       hideDate: hideDate.eraseToAnyPublisher())
+    
+    /// type erased된 퍼블리셔들의 집합인 input structure 인스턴스를 인자값으로 보냅니다.
     let output = viewModel.transform(input)
+    
+    /// output의 upstream에선 비동기적으로 background queue에서 작업할 수 있지만
+    ///   ui render를 할 때는 뷰의 ui를 변화시켜야 함으로 반드시 메인스레드에서 담당해야합니다.
     output
-      .receive(on: RunLoop.main)
+      .receive(on: RunLoop.current)
       .sink { self.render($0) }
       .store(in: &subscriptions)
   }
@@ -83,6 +89,8 @@ extension ClockViewController: ViewBindable {
       animate(
         button: hideDateButton,
         logic: self.dateView.text = labelData)
+    case .unexpectedError(let description):
+      print("Unexpected Error Occured: \(description)")
     }
   }
 }

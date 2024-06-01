@@ -9,5 +9,4 @@ import Combine
 
 protocol ClockViewModelable: ViewModelable
 where Input == ClockViewModelInput,
-      State == ClockViewModelState,
-      Output == AnyPublisher<State, Never> { }
+      State == ClockViewModelState { }

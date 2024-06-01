@@ -12,7 +12,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
     guard let windowScene = (scene as? UIWindowScene) else { return }
     window = UIWindow(windowScene: windowScene)
-    let model = Model(labelData: "Outputs UI Rendered")
+    let model = Model(defaultString: "Outputs UI Rendered")
     let vm = ClockViewModel(model: model)
     
     /// Dependency injection

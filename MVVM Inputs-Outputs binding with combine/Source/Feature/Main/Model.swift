@@ -8,5 +8,5 @@
 import Foundation
 
 struct Model {
-  var labelData: String
+  var defaultString: String
 }

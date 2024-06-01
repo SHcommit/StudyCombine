@@ -17,6 +17,8 @@ final class ClockViewModel {
   // MARK: - Properties
   private var model: Model
   
+  private let backgroundQueue = DispatchQueue(label: "viewModel.queue", qos: .default, attributes: .concurrent)
+  
   init(model: Model) {
     self.model = model
   }
@@ -49,17 +51,17 @@ extension ClockViewModel: ClockViewModelDataSource {
     /// Model 레이블 형식은 "yyyy-MM-dd HH:mm:ss" or "Outputs UI Rendered" 인데.. 쉽게 시간을 저장했을 때
     /// HH만 추출해서 반환하려고 합니다.
     /// 근데 여기서는 Input/ output만 예시로 보여줄 것이기에,, 실질적으로 사용하지는 않습니다.
-    if model.labelData.contains("Outputs") { return "NN" }
-    return model.labelData.split{$0==" "}.last?.split{$0==":"}.first.map{ String($0) } ?? "00"
+    if model.defaultString.contains("Outputs") { return "NN" }
+    return model.defaultString.split{$0==" "}.last?.split{$0==":"}.first.map{ String($0) } ?? "00"
   }
 }
 
 // MARK: - Private helper
 extension ClockViewModel {
-  
   private func viewDidLoadChains(_ input: Input) -> Output {
     return input
       .viewDidLoad
+      .subscribeAndReceive(on: backgroundQueue)
       .map { _ -> State in
         return .none
       }
@@ -69,6 +71,7 @@ extension ClockViewModel {
   private func showTimeChains(_ input: Input) -> Output {
     return input
       .showDate
+      .subscribeAndReceive(on: backgroundQueue)
       .throttle(for: .seconds(0.4), scheduler: RunLoop.main, latest: true)
       .map{ date -> State in
         let dateFormatter = DateFormatter()
@@ -82,13 +85,19 @@ extension ClockViewModel {
   private func hideTimeChains(_ input: Input) -> Output {
     return input
       .hideDate
+      .subscribeAndReceive(on: backgroundQueue)
       .throttle(for: .seconds(0.4), scheduler: RunLoop.main,latest: true)
-      .map{ [weak self] _ -> State in
+      .flatMap { [weak self] _ -> Output in
         guard let model = self?.model else {
-          // 사실 여기서 에러 처리 전용 state 로 상태 변경해야 합니다.
-          return .none
+          /// 에러를 문자로 대체합니다.
+          let error = NSError(
+            domain: "viewModel",
+            code: 0,
+            userInfo: [NSLocalizedDescriptionKey: "Model not found."])
+          
+          return Just(.unexpectedError(description: error.localizedDescription)).eraseToAnyPublisher()
         }
-        return .hideTime(model.labelData)
+        return Just(.hideTime(model.defaultString)).eraseToAnyPublisher()
       }
       .eraseToAnyPublisher()
   }

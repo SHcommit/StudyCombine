@@ -12,9 +12,10 @@
 		1518D6BC29FA403200ED8969 /* ClockViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1518D6BB29FA403200ED8969 /* ClockViewController.swift */; };
 		1518D6C129FA403300ED8969 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 1518D6C029FA403300ED8969 /* Assets.xcassets */; };
 		1518D6C429FA403300ED8969 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1518D6C229FA403300ED8969 /* LaunchScreen.storyboard */; };
-		1518D6D029FA414300ED8969 /* ClockViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1518D6CF29FA414300ED8969 /* ClockViewModel.swift */; };
 		1518D6D229FA417000ED8969 /* ClockViewControllerInputOutput.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1518D6D129FA417000ED8969 /* ClockViewControllerInputOutput.swift */; };
 		1518D6D429FA41A400ED8969 /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1518D6D329FA41A400ED8969 /* Model.swift */; };
+		1568CC9A2C0B793E0056A298 /* ClockViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1568CC992C0B793E0056A298 /* ClockViewModel.swift */; };
+		1568CC9D2C0B7A160056A298 /* Publishers+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1568CC9C2C0B7A160056A298 /* Publishers+.swift */; };
 		15DF95B52A7D57C00093EAC7 /* ViewModelable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DF95B42A7D57C00093EAC7 /* ViewModelable.swift */; };
 		15DF95B82A7D57FA0093EAC7 /* ClockViewModelable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DF95B72A7D57FA0093EAC7 /* ClockViewModelable.swift */; };
 		15DF95BC2A7D8B5D0093EAC7 /* ViewBindable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DF95BB2A7D8B5D0093EAC7 /* ViewBindable.swift */; };
@@ -28,9 +29,10 @@
 		1518D6C029FA403300ED8969 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		1518D6C329FA403300ED8969 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		1518D6C529FA403300ED8969 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		1518D6CF29FA414300ED8969 /* ClockViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockViewModel.swift; sourceTree = "<group>"; };
 		1518D6D129FA417000ED8969 /* ClockViewControllerInputOutput.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockViewControllerInputOutput.swift; sourceTree = "<group>"; };
 		1518D6D329FA41A400ED8969 /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
+		1568CC992C0B793E0056A298 /* ClockViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ClockViewModel.swift; sourceTree = "<group>"; };
+		1568CC9C2C0B7A160056A298 /* Publishers+.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Publishers+.swift"; sourceTree = "<group>"; };
 		15DF95B42A7D57C00093EAC7 /* ViewModelable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelable.swift; sourceTree = "<group>"; };
 		15DF95B72A7D57FA0093EAC7 /* ClockViewModelable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClockViewModelable.swift; sourceTree = "<group>"; };
 		15DF95BB2A7D8B5D0093EAC7 /* ViewBindable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewBindable.swift; sourceTree = "<group>"; };
@@ -95,20 +97,29 @@
 		1518D6CD29FA410F00ED8969 /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				1568CC9B2C0B79E80056A298 /* Extension */,
 				15DF95B62A7D57E40093EAC7 /* Protocol */,
-				1518D6CF29FA414300ED8969 /* ClockViewModel.swift */,
 				1518D6BB29FA403200ED8969 /* ClockViewController.swift */,
+				1568CC992C0B793E0056A298 /* ClockViewModel.swift */,
 				1518D6D129FA417000ED8969 /* ClockViewControllerInputOutput.swift */,
 				1518D6D329FA41A400ED8969 /* Model.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
 		};
+		1568CC9B2C0B79E80056A298 /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				1568CC9C2C0B7A160056A298 /* Publishers+.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
 		15DF95B62A7D57E40093EAC7 /* Protocol */ = {
 			isa = PBXGroup;
 			children = (
-				15DF95B42A7D57C00093EAC7 /* ViewModelable.swift */,
 				15DF95B72A7D57FA0093EAC7 /* ClockViewModelable.swift */,
+				15DF95B42A7D57C00093EAC7 /* ViewModelable.swift */,
 				15DF95BB2A7D8B5D0093EAC7 /* ViewBindable.swift */,
 			);
 			path = Protocol;
@@ -189,10 +200,11 @@
 				1518D6BC29FA403200ED8969 /* ClockViewController.swift in Sources */,
 				1518D6B829FA403200ED8969 /* AppDelegate.swift in Sources */,
 				1518D6D429FA41A400ED8969 /* Model.swift in Sources */,
-				1518D6D029FA414300ED8969 /* ClockViewModel.swift in Sources */,
 				15DF95BC2A7D8B5D0093EAC7 /* ViewBindable.swift in Sources */,
 				1518D6BA29FA403200ED8969 /* SceneDelegate.swift in Sources */,
 				15DF95B82A7D57FA0093EAC7 /* ClockViewModelable.swift in Sources */,
+				1568CC9D2C0B7A160056A298 /* Publishers+.swift in Sources */,
+				1568CC9A2C0B793E0056A298 /* ClockViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

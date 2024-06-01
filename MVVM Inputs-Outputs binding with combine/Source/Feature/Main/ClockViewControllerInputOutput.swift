@@ -32,8 +32,9 @@ struct ClockViewModelInput {
  - Case showTime : label 상태를 String으로 변경
  - Case hideTime : label 상태를 원래 label 데이터로 변경
  */
-enum ClockViewModelState {
+@frozen enum ClockViewModelState {
   case none
   case showTime(String)
   case hideTime(String)
+  case unexpectedError(description: String)
 }
